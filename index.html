@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-button svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chat-container.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-header p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.user .message-content {
+            background: var(--primary-gradient);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 20px 16px 20px;
+            background: #f8f9fa;
+        }
+
+        .quick-reply-btn {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            color: #555;
+        }
+
+        .quick-reply-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .chat-input-container {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-container {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 120px);
+                max-height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-widget">
+        <button class="chat-button" onclick="toggleChat()">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+            </svg>
+        </button>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div>
+                    <h3 id="chatbotName"></h3>
+                    <p id="chatbotSubtitle"></p>
+                </div>
+                <button class="close-button" onclick="toggleChat()">×</button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="quick-replies" id="quickReplies"></div>
+
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Napište svou zprávu..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // KONFIGURACE - UPRAV PODLE SVÝCH POTŘEB
+        // ============================================
+        
+        const CONFIG = {
+            // API nastavení
+            workerUrl: 'TVOJE WORKER URL',   //doplň svou worker URL, viz README
+            
+            // Vzhled chatbota
+            colors: {
+                primary: '#667eea',        // Hlavní barva
+                secondary: '#764ba2',      // Sekundární barva (pro gradient)
+            },
+            
+            // Texty doplň podle potřeby
+            chatbotName: 'AI Asistent',
+            chatbotSubtitle: 'Ochotný webový AI Asistent',
+            welcomeMessage: 'Dobrý den! 👋 Jsem AI asistent. Jak vám mohu pomoci?',
+            inputPlaceholder: 'Napište svou zprávu...',
+            
+            // Rychlé odpovědi (quick replies)
+            quickReplies: [
+                'Co nabízíte?',
+                'Jak funguje spolupráce?',
+                'Cena služeb'
+            ],
+            
+            // System prompt - instrukce pro AI
+            systemPrompt: `Jsi AI asistent pro web. Tvým úkolem je odpovídat na dotazy potenciálních klientů profesionálně, přátelsky a vstřícně v češtině.
+
+INFORMACE O SLUŽBÁCH:
+-
+-
+-
+-
+-
+
+STYL KOMUNIKACE:
+- Profesionální, ale přátelský a milý
+- Používej krátké, srozumitelné odpovědi
+- Neboj se použít emoji, když to dává smysl
+- Zaměř se na praktické benefity pro klienta
+- Pokud nevíš odpověď na specifickou technickou otázku, buď upřímný a nabídni kontaktování přímo
+
+KONTAKT:
+- Pokud se někdo chce dozvědět více nebo má konkrétní projekt, povzbuď ho ke kontaktu
+
+Odpovídej vždy v češtině a buď nápomocný!`
+        };
+        
+        // ============================================
+        // KONEC KONFIGURACE
+        // ============================================
+
+        // Nastavení CSS proměnných pro barvy
+        document.documentElement.style.setProperty('--primary-color', CONFIG.colors.primary);
+        document.documentElement.style.setProperty('--primary-gradient', 
+            `linear-gradient(135deg, ${CONFIG.colors.primary} 0%, ${CONFIG.colors.secondary} 100%)`
+        );
+
+        // Nastavení textů
+        document.getElementById('chatbotName').textContent = CONFIG.chatbotName;
+        document.getElementById('chatbotSubtitle').textContent = CONFIG.chatbotSubtitle;
+        document.getElementById('chatInput').placeholder = CONFIG.inputPlaceholder;
+
+        // Inicializace konverzace
+        const conversationHistory = [];
+
+        function toggleChat() {
+            const container = document.getElementById('chatContainer');
+            const wasOpen = container.classList.contains('open');
+            container.classList.toggle('open');
+            
+            if (!wasOpen) {
+                // První otevření - zobraz uvítací zprávu
+                const messagesDiv = document.getElementById('chatMessages');
+                if (messagesDiv.children.length === 0) {
+                    addMessage(CONFIG.welcomeMessage, false);
+                    setupQuickReplies();
+                }
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        function setupQuickReplies() {
+            const quickRepliesDiv = document.getElementById('quickReplies');
+            quickRepliesDiv.innerHTML = '';
+            
+            CONFIG.quickReplies.forEach(reply => {
+                const button = document.createElement('button');
+                button.className = 'quick-reply-btn';
+                button.textContent = reply;
+                button.onclick = () => sendQuickReply(reply);
+                quickRepliesDiv.appendChild(button);
+            });
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            
+            typingDiv.appendChild(indicator);
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function sendMessageToAPI(userMessage) {
+            conversationHistory.push({
+                role: "user",
+                content: userMessage
+            });
+
+            try {
+                const response = await fetch(CONFIG.workerUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1000,
+                        system: CONFIG.systemPrompt,
+                        messages: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                const assistantMessage = data.content[0].text;
+                
+                conversationHistory.push({
+                    role: "assistant",
+                    content: assistantMessage
+                });
+
+                return assistantMessage;
+            } catch (error) {
+                console.error("API Error:", error);
+                return "Omlouvám se, vyskytla se chyba při zpracování vaší zprávy. Zkuste to prosím znovu.";
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, true);
+            input.value = '';
+            
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            input.disabled = true;
+            
+            showTypingIndicator();
+            
+            const response = await sendMessageToAPI(message);
+            
+            removeTypingIndicator();
+            addMessage(response);
+            
+            sendButton.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+
+        function sendQuickReply(message) {
+            document.getElementById('chatInput').value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
