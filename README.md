@@ -24,6 +24,8 @@ Klikni Create Worker
 Pojmenuj ho (např. chatbot-api)
 Vlož tento kód:
 
+
+'''
 javascriptexport default {
   async fetch(request, env) {
     // Povolení CORS
@@ -68,6 +70,7 @@ javascriptexport default {
     }
   },
 };
+'''
 
 Nahraď TVŮJ_ANTHROPIC_API_KLÍČ svým API klíčem
 Klikni Save and Deploy
