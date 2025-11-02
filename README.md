@@ -36,14 +36,11 @@ javascriptexport default {
         },
       });
     }
-
     if (request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
     }
-
     try {
-      const body = await request.json();
-      
+      const body = await request.json();    
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -53,9 +50,7 @@ javascriptexport default {
         },
         body: JSON.stringify(body),
       });
-
       const data = await response.json();
-
       return new Response(JSON.stringify(data), {
         headers: {
           'Content-Type': 'application/json',
@@ -105,6 +100,7 @@ javascriptconst CONFIG = {
     // System prompt - instrukce pro AI
     systemPrompt: `Zde napiš, jak má AI odpovídat...`
 };
+
 Krok 3: Nahrání na web
 
 Ulož upravený chatbot.html
