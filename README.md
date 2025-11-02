@@ -24,8 +24,7 @@ Klikni Create Worker
 Pojmenuj ho (např. chatbot-api)
 Vlož tento kód:
 
-
-'''
+ ```
 javascriptexport default {
   async fetch(request, env) {
     // Povolení CORS
@@ -70,14 +69,16 @@ javascriptexport default {
     }
   },
 };
-'''
+ ```
 
 Nahraď TVŮJ_ANTHROPIC_API_KLÍČ svým API klíčem
 Klikni Save and Deploy
 Zkopíruj URL workeru (např. https://chatbot-api.tvoje-jmeno.workers.dev/)
 
 Krok 2: Konfigurace chatbota
-V souboru chatbot.html najdi sekci KONFIGURACE (řádky cca 300-380) a uprav podle svých potřeb:
+V souboru index.html najdi sekci KONFIGURACE (řádky cca 300-380) a uprav podle svých potřeb:
+
+ ```
 javascriptconst CONFIG = {
     // Tvoje Worker URL z kroku 1
     workerUrl: 'https://chatbot-api.tvoje-jmeno.workers.dev/',
@@ -103,6 +104,7 @@ javascriptconst CONFIG = {
     // System prompt - instrukce pro AI
     systemPrompt: `Zde napiš, jak má AI odpovídat...`
 };
+ ```
 
 Krok 3: Nahrání na web
 
