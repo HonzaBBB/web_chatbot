@@ -1,5 +1,6 @@
 AI Chatbot - Embeddable Web Widget
 Profesionální AI chatbot využívající Claude AI od Anthropic, který lze snadno vložit na jakýkoliv web.
+
 ✨ Funkce
 
 🤖 Inteligentní konverzace s Claude AI
@@ -113,11 +114,17 @@ Nahraj na svůj webhosting
 Hotovo! 🎉
 
 ⚙️ Přizpůsobení
+
 Barvy
+
 Změň colors.primary a colors.secondary v CONFIG sekci.
+
 Texty
+
 Všechny texty (název, popisek, uvítací zpráva) můžeš změnit v CONFIG sekci.
+
 System Prompt
+
 V systemPrompt definuj:
 
 Jaké informace má chatbot znát
@@ -126,9 +133,13 @@ Jaké má odpovídat na časté dotazy
 Kdy má nabídnout kontakt
 
 Quick Replies
+
 Uprav pole quickReplies - přidej nebo uber tlačítka podle potřeby.
 
+Cena:
+
 Cloudflare Workers: Zdarma až 100 000 požadavků/den
+
 Anthropic API:
 
 $3 za 1M vstupních tokenů
@@ -143,6 +154,7 @@ Pro běžný chatbot: cca $0.01-0.05 za konverzaci
 ✅ Pouze POST požadavky povoleny
 
 🐛 Řešení problémů
+
 Chatbot nereaguje
 
 Zkontroluj konzoli (F12 v prohlížeči)
